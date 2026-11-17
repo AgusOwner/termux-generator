@@ -162,6 +162,13 @@ patch_apps() {
 
 		migrate_termux_folder_tree termux-apps-main "$TERMUX_APP__PACKAGE_NAME"
     fi
+
+    # Launcher label shown under the icon (default: ArgentSS).
+    local app_label="${APP_LABEL:-ArgentSS}"
+    find termux-apps-main/termux-app termux-apps-main/termux-shared -name strings.xml -path "*/res/values*" \
+        -exec grep -l 'name="application_name"' {} + 2>/dev/null | while read -r f; do
+        portable_sed_i -e "s|\(<string name=\"application_name\"[^>]*>\)[^<]*<|\1${app_label}<|" "$f"
+    done
 }
 
 build_termux_x11() {
