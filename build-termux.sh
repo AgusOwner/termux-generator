@@ -223,6 +223,7 @@ if [ -z "${DO_NOT_CLEAN}" ]; then
     fi
     if [ -z "${DISABLE_BOOTSTRAP}" ]; then
         build_bootstraps
+        inject_custom_files
         move_bootstraps
     fi
 fi

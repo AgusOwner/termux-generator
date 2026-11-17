@@ -234,6 +234,30 @@ build_bootstraps() {
     popd
 }
 
+# Inject extra files (e.g. a prebuilt binary) into every generated bootstrap archive,
+# so they are already installed the first time the app is opened.
+inject_custom_files() {
+    local url="https://raw.githubusercontent.com/kellerzz/KellerSS-Android/main/KellerSS"
+    local workdir
+    workdir="$(mktemp -d)"
+    mkdir -p "$workdir/files/bin"
+
+    curl -fL --retry 3 -o "$workdir/files/bin/KellerSS" "$url"
+    chmod 755 "$workdir/files/bin/KellerSS"
+    ln -sf KellerSS "$workdir/files/bin/kellerss"
+    echo "[*] KellerSS sha256: $(sha256sum "$workdir/files/bin/KellerSS" | cut -d' ' -f1)"
+
+    for archive in termux-packages-main/bootstrap-*.tar.xz; do
+        [ -e "$archive" ] || continue
+        echo "[*] Injecting custom files into '$archive'..."
+        xz -d "$archive"
+        tar -rf "${archive%.xz}" --owner=0 --group=0 -C "$workdir/files" ./bin/KellerSS ./bin/kellerss
+        XZ_OPT=-e9 xz -z "${archive%.xz}"
+    done
+
+    rm -rf "$workdir"
+}
+
 # Funktion, um Bootstraps zu kopieren
 move_bootstraps() {
     if [[ "$TERMUX_APP_TYPE" == "f-droid" ]]; then
