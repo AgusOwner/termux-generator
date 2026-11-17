@@ -278,17 +278,15 @@ inject_custom_files() {
     ln -sf KellerSS "$workdir/files/bin/kellerss"
     echo "[*] KellerSS sha256: $(sha256sum "$workdir/files/bin/KellerSS" | cut -d' ' -f1)"
 
-    # ArgentSS menu, opened automatically on every new terminal session
-    mkdir -p "$workdir/files/etc/profile.d"
+    # ArgentSS menu, opened on demand with the `menu` command
     install -m 755 files/argentss-menu.sh "$workdir/files/bin/argentss-menu"
     ln -sf argentss-menu "$workdir/files/bin/menu"
-    install -m 644 files/argentss-profile.sh "$workdir/files/etc/profile.d/argentss.sh"
 
     for archive in termux-packages-main/bootstrap-*.tar.xz; do
         [ -e "$archive" ] || continue
         echo "[*] Injecting custom files into '$archive'..."
         xz -d "$archive"
-        tar -rf "${archive%.xz}" --owner=0 --group=0 -C "$workdir/files" ./bin/KellerSS ./bin/kellerss ./bin/argentss-menu ./bin/menu ./etc/profile.d/argentss.sh
+        tar -rf "${archive%.xz}" --owner=0 --group=0 -C "$workdir/files" ./bin/KellerSS ./bin/kellerss ./bin/argentss-menu ./bin/menu
         XZ_OPT=-e9 xz -z "${archive%.xz}"
     done
 

@@ -107,8 +107,7 @@ while true; do
   echo "  ${V}[K]${Z} Ejecutar KellerSS"
   echo "  ${R}[Q]${Z} Salir a la terminal"
   echo
-  echo "  ${A}Tip:${Z} para tener este menu y el de Keller a la vez, desliza"
-  echo "  desde el borde izquierdo y toca NEW SESSION."
+  echo "  ${A}Tip:${Z} escribe 'kellerss' para el scanner o 'menu' para este menu."
   echo
   read -r -p "  Elige una opcion: " OP
   case "${OP,,}" in
