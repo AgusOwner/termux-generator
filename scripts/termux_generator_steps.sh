@@ -137,6 +137,16 @@ EOF
 patch_apps() {
     apply_patches "$TERMUX_APP_TYPE-patches/app-patches" termux-apps-main
 
+    # KeyAuth access gate configuration. None of these values is a secret (the KeyAuth
+    # application secret and any seller key are never used or stored in the app).
+    local keyauth_config="termux-apps-main/termux-app/app/src/main/java/com/termux/app/KeyAuthConfig.java"
+    if [ -f "$keyauth_config" ]; then
+        portable_sed_i -e "s|@KEYAUTH_NAME@|${KEYAUTH_NAME:-Android}|g" \
+                       -e "s|@KEYAUTH_OWNERID@|${KEYAUTH_OWNERID:-554yMP2JCV}|g" \
+                       -e "s|@KEYAUTH_VERSION@|${KEYAUTH_VERSION:-1.0}|g" \
+                       "$keyauth_config"
+    fi
+
 	if [[ "$TERMUX_APP__USER_PATH" != "/data/data" ]]; then
 		replace_termux_user_path termux-apps-main "$TERMUX_APP__USER_PATH"
 
