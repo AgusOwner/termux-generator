@@ -1,7 +1,7 @@
-diff --git a/termux-app/app/src/main/AndroidManifest.xml b/termux-app/app/src/main/AndroidManifest.xml
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
 index 1d0dfe1..fd9fcf0 100644
---- a/termux-app/app/src/main/AndroidManifest.xml
-+++ b/termux-app/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
 @@ -74,6 +74,12 @@
                  android:resource="@xml/shortcuts" />
          </activity>
@@ -15,12 +15,12 @@ index 1d0dfe1..fd9fcf0 100644
          <activity-alias
              android:name=".HomeActivity"
              android:exported="true"
-diff --git a/termux-app/app/src/main/java/com/termux/app/KeyAuthClient.java b/termux-app/app/src/main/java/com/termux/app/KeyAuthClient.java
+diff --git a/app/src/main/java/com/termux/app/KeyAuthClient.java b/app/src/main/java/com/termux/app/KeyAuthClient.java
 new file mode 100644
-index 0000000..ed2d63b
+index 0000000..04d7a14
 --- /dev/null
-+++ b/termux-app/app/src/main/java/com/termux/app/KeyAuthClient.java
-@@ -0,0 +1,88 @@
++++ b/app/src/main/java/com/termux/app/KeyAuthClient.java
+@@ -0,0 +1,91 @@
 +package com.termux.app;
 +
 +import android.content.Context;
@@ -65,6 +65,9 @@ index 0000000..ed2d63b
 +
 +            String hwid = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 +            if (hwid == null) hwid = "unknown";
++            // KeyAuth requires an HWID of at least 20 characters; ANDROID_ID has only 16.
++            hwid = "agus-" + hwid + "-" + context.getPackageName();
++            while (hwid.length() < 20) hwid += "0";
 +
 +            JSONObject lic = new JSONObject(post(
 +                "type=license"
@@ -109,11 +112,11 @@ index 0000000..ed2d63b
 +        }
 +    }
 +}
-diff --git a/termux-app/app/src/main/java/com/termux/app/KeyAuthConfig.java b/termux-app/app/src/main/java/com/termux/app/KeyAuthConfig.java
+diff --git a/app/src/main/java/com/termux/app/KeyAuthConfig.java b/app/src/main/java/com/termux/app/KeyAuthConfig.java
 new file mode 100644
 index 0000000..95373e8
 --- /dev/null
-+++ b/termux-app/app/src/main/java/com/termux/app/KeyAuthConfig.java
++++ b/app/src/main/java/com/termux/app/KeyAuthConfig.java
 @@ -0,0 +1,11 @@
 +package com.termux.app;
 +
@@ -126,11 +129,11 @@ index 0000000..95373e8
 +
 +    private KeyAuthConfig() {}
 +}
-diff --git a/termux-app/app/src/main/java/com/termux/app/LicenseActivity.java b/termux-app/app/src/main/java/com/termux/app/LicenseActivity.java
+diff --git a/app/src/main/java/com/termux/app/LicenseActivity.java b/app/src/main/java/com/termux/app/LicenseActivity.java
 new file mode 100644
 index 0000000..e4962d3
 --- /dev/null
-+++ b/termux-app/app/src/main/java/com/termux/app/LicenseActivity.java
++++ b/app/src/main/java/com/termux/app/LicenseActivity.java
 @@ -0,0 +1,150 @@
 +package com.termux.app;
 +
@@ -282,10 +285,10 @@ index 0000000..e4962d3
 +        mKeyInput.setEnabled(!busy);
 +    }
 +}
-diff --git a/termux-app/app/src/main/java/com/termux/app/TermuxActivity.java b/termux-app/app/src/main/java/com/termux/app/TermuxActivity.java
+diff --git a/app/src/main/java/com/termux/app/TermuxActivity.java b/app/src/main/java/com/termux/app/TermuxActivity.java
 index 0c9f741..35cece4 100644
---- a/termux-app/app/src/main/java/com/termux/app/TermuxActivity.java
-+++ b/termux-app/app/src/main/java/com/termux/app/TermuxActivity.java
+--- a/app/src/main/java/com/termux/app/TermuxActivity.java
++++ b/app/src/main/java/com/termux/app/TermuxActivity.java
 @@ -213,6 +213,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
  
          super.onCreate(savedInstanceState);
