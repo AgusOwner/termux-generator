@@ -60,7 +60,7 @@ depuracion_inalambrica() {
     echo "  ${R}No pude abrirlo. Entra a mano.${Z}"
   fi
   echo
-  echo "  Cuando la tengas activada, usa la opcion 3 para vincular."
+  echo "  Cuando la tengas activada, usa la opcion [V] para vincular."
   pausa
 }
 
@@ -101,19 +101,22 @@ ejecutar_kellerss() {
 
 while true; do
   banner
-  echo "  ${V}1${Z}) Activar Modo desarrollador"
-  echo "  ${V}2${Z}) Depuracion inalambrica (abrir ajustes)"
-  echo "  ${V}3${Z}) Vincular ADB"
-  echo "  ${V}4${Z}) Ejecutar KellerSS"
-  echo "  ${V}0${Z}) Salir a la terminal"
+  echo "  ${V}[D]${Z} Activar Modo desarrollador"
+  echo "  ${V}[W]${Z} Depuracion inalambrica (abrir ajustes)"
+  echo "  ${V}[V]${Z} Vincular ADB"
+  echo "  ${V}[K]${Z} Ejecutar KellerSS"
+  echo "  ${R}[Q]${Z} Salir a la terminal"
+  echo
+  echo "  ${A}Tip:${Z} para tener este menu y el de Keller a la vez, desliza"
+  echo "  desde el borde izquierdo y toca NEW SESSION."
   echo
   read -r -p "  Elige una opcion: " OP
-  case "$OP" in
-    1) modo_desarrollador ;;
-    2) depuracion_inalambrica ;;
-    3) vincular_adb ;;
-    4) ejecutar_kellerss ;;
-    0) clear 2>/dev/null; exit 0 ;;
+  case "${OP,,}" in
+    d) modo_desarrollador ;;
+    w) depuracion_inalambrica ;;
+    v) vincular_adb ;;
+    k) ejecutar_kellerss ;;
+    q) clear 2>/dev/null; exit 0 ;;
     *) echo "  ${R}Opcion no valida.${Z}"; sleep 1 ;;
   esac
 done
