@@ -246,7 +246,21 @@ build_bootstraps() {
         "$TERMUX_GENERATOR_HOME/scripts/build-bootstraps.yml.in" \
         > .github/workflows/build-bootstraps.yml
 
-    scripts/run-docker.sh "scripts/$bootstrap_script" $bootstrap_script_args
+    # Upstream source mirrors (git.kernel.org, invisible-mirror.net, ...) are sometimes
+    # unreachable or return error pages from CI runners. The builder container is
+    # persistent and remembers finished packages, so simply retrying resumes where it failed.
+    local attempt max_attempts=6
+    for attempt in $(seq 1 "$max_attempts"); do
+        if scripts/run-docker.sh "scripts/$bootstrap_script" $bootstrap_script_args; then
+            break
+        fi
+        if [ "$attempt" -eq "$max_attempts" ]; then
+            echo "[!] Bootstrap build failed after $max_attempts attempts" >&2
+            return 1
+        fi
+        echo "[!] Bootstrap build failed (attempt $attempt/$max_attempts), retrying in 60s..." >&2
+        sleep 60
+    done
 
     popd
 }
