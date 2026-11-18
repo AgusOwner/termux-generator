@@ -64,6 +64,11 @@ depuracion_inalambrica() {
   pausa
 }
 
+# Intenta leer IP:PUERTO anunciado por Android (mDNS). $1 = tipo de servicio
+detectar() {
+  adb mdns services 2>/dev/null | awk -v t="$1" 'index($0,t){print $NF; exit}'
+}
+
 vincular_adb() {
   echo "${A}${B}Vincular ADB${Z}"
   echo
@@ -76,11 +81,20 @@ vincular_adb() {
   adb start-server >/dev/null 2>&1
 
   echo "  1) Ajustes > Depuracion inalambrica > 'Vincular dispositivo con codigo'"
-  read -r -p "  Puerto de vinculacion (los digitos despues de los dos puntos): " PPORT
-  [ -z "$PPORT" ] && { echo "  ${R}No escribiste nada.${Z}"; pausa; return; }
+  echo "     (deja esa ventana abierta y vuelve aqui; pantalla dividida ayuda)"
+  read -r -p "  Enter cuando la ventana del codigo este visible..." _
+  PADDR=$(detectar _adb-tls-pairing)
+  if [ -n "$PADDR" ]; then
+    echo "  ${V}Detecte el puerto de vinculacion: ${PADDR}${Z}"
+  else
+    echo "  ${A}No pude detectarlo solo; escribelo.${Z}"
+    read -r -p "  Puerto de vinculacion (digitos despues de los dos puntos): " PPORT
+    [ -z "$PPORT" ] && { echo "  ${R}No escribiste nada.${Z}"; pausa; return; }
+    PADDR="localhost:${PPORT}"
+  fi
   read -r -p "  Codigo de 6 digitos: " CODE
   echo
-  if ! adb pair "localhost:${PPORT}" "$CODE"; then
+  if ! adb pair "$PADDR" "$CODE"; then
     echo
     echo "  ${R}No se pudo vincular. Revisa puerto y codigo (cambian cada vez).${Z}"
     pausa; return
@@ -88,9 +102,17 @@ vincular_adb() {
   echo
   echo "  2) Cierra esa ventana. En la pantalla principal de Depuracion"
   echo "     inalambrica mira 'Direccion IP y puerto' (puerto DISTINTO al anterior)."
-  read -r -p "  Puerto de conexion: " CPORT
-  [ -z "$CPORT" ] && { echo "  ${R}No escribiste nada.${Z}"; pausa; return; }
-  adb connect "localhost:${CPORT}"
+  sleep 2
+  CADDR=$(detectar _adb-tls-connect)
+  if [ -n "$CADDR" ]; then
+    echo "  ${V}Detecte el puerto de conexion: ${CADDR}${Z}"
+  else
+    echo "  ${A}No pude detectarlo solo; escribelo.${Z}"
+    read -r -p "  Puerto de conexion: " CPORT
+    [ -z "$CPORT" ] && { echo "  ${R}No escribiste nada.${Z}"; pausa; return; }
+    CADDR="localhost:${CPORT}"
+  fi
+  adb connect "$CADDR"
   echo
   sleep 1
   if adb devices | awk 'NR>1 && $2=="device"' | grep -q .; then
