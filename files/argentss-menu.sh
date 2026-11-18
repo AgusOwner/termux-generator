@@ -67,26 +67,37 @@ depuracion_inalambrica() {
 vincular_adb() {
   echo "${A}${B}Vincular ADB${Z}"
   echo
-  echo "  1) Depuracion inalambrica > 'Vincular dispositivo con codigo'"
-  echo "     (veras IP:PUERTO y un codigo de 6 digitos)"
-  echo "  ${A}Tip:${Z} si el codigo desaparece al volver aqui, usa pantalla"
-  echo "  dividida o ventana flotante para ver las dos apps a la vez."
+  echo "  Como Termux esta en este mismo celular, no necesitas la IP:"
+  echo "  solo los puertos y el codigo."
+  echo
+  echo "  ${A}Tip:${Z} usa pantalla dividida o ventana flotante para ver Ajustes"
+  echo "  y esta app a la vez (el codigo desaparece si sales de Ajustes)."
   echo
   adb start-server >/dev/null 2>&1
-  read -r -p "  IP:PUERTO de vinculacion: " PAIR
-  [ -z "$PAIR" ] && { echo "  ${R}No escribiste nada.${Z}"; pausa; return; }
+
+  echo "  1) Ajustes > Depuracion inalambrica > 'Vincular dispositivo con codigo'"
+  read -r -p "  Puerto de vinculacion (los digitos despues de los dos puntos): " PPORT
+  [ -z "$PPORT" ] && { echo "  ${R}No escribiste nada.${Z}"; pausa; return; }
   read -r -p "  Codigo de 6 digitos: " CODE
   echo
-  adb pair "$PAIR" "$CODE"
-  echo
-  echo "  2) En la pantalla principal de Depuracion inalambrica copia la"
-  echo "     'Direccion IP y puerto' (este puerto es DISTINTO al anterior)."
-  read -r -p "  IP:PUERTO de conexion: " CONN
-  if [ -n "$CONN" ]; then
-    adb connect "$CONN"
+  if ! adb pair "localhost:${PPORT}" "$CODE"; then
+    echo
+    echo "  ${R}No se pudo vincular. Revisa puerto y codigo (cambian cada vez).${Z}"
+    pausa; return
   fi
   echo
-  adb devices
+  echo "  2) Cierra esa ventana. En la pantalla principal de Depuracion"
+  echo "     inalambrica mira 'Direccion IP y puerto' (puerto DISTINTO al anterior)."
+  read -r -p "  Puerto de conexion: " CPORT
+  [ -z "$CPORT" ] && { echo "  ${R}No escribiste nada.${Z}"; pausa; return; }
+  adb connect "localhost:${CPORT}"
+  echo
+  sleep 1
+  if adb devices | awk 'NR>1 && $2=="device"' | grep -q .; then
+    echo "  ${V}${B}ADB conectado.${Z} Ya puedes usar KellerSS (otra sesion o [K])."
+  else
+    echo "  ${R}No quedo conectado. Prueba de nuevo.${Z}"
+  fi
   pausa
 }
 
